@@ -23,7 +23,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws-chat")
                 .addInterceptors(jwtHandshakeInterceptor)
-                .setAllowedOrigins("http://192.168.1.44:8081")
+                .setAllowedOrigins("http://192.168.1.34:8081")
         ;
     }
     
