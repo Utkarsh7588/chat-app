@@ -78,14 +78,19 @@ public class JWTService {
     }
 
     public boolean validateToken(String token) {
-        if (isTokenExpired(token)) {
+        try{
+            if (isTokenExpired(token)) {
+                return false;
+            }
+            int userId = extractId(token);
+            if(usersRepository.existsById(userId)){
+                Users user = usersRepository.findById(userId).orElse(new Users());
+                return Objects.equals(user.getEmail(), extractEmail(token));
+            }
             return false;
         }
-        int userId = extractId(token);
-        if(usersRepository.existsById(userId)){
-            Users user = usersRepository.findById(userId).orElse(new Users());
-            return Objects.equals(user.getEmail(), extractEmail(token));
+        catch (Exception e){
+            return false;
         }
-        return false;
     }
 }

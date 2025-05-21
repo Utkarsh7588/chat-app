@@ -37,10 +37,11 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                   .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowedOrigins(Collections.singletonList("*"));
-                    config.setAllowedMethods(Collections.singletonList("*"));
-                    config.setAllowedHeaders(Collections.singletonList("*"));
-                    return config;
+                      config.setAllowedOrigins(List.of("http://192.168.1.44:8081"));
+                      config.setAllowedMethods(List.of("*"));
+                      config.setAllowedHeaders(List.of("*"));
+                      config.setAllowCredentials(true); // Important for cookies/auth headers
+                      return config;
                 }))
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/api/register","/api/login","/ws-chat/**").permitAll()

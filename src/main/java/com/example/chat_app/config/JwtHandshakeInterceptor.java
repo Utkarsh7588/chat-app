@@ -23,15 +23,18 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
                                    WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
 
         if (request instanceof ServletServerHttpRequest servletRequest) {
-            String token = servletRequest.getServletRequest().getParameter("token"); // or from header
+            String token = servletRequest.getServletRequest().getParameter("token");
+            String groupId = servletRequest.getServletRequest().getParameter("groupId");// or from header
             if (token != null && jwtService.validateToken(token)) {
                 int userId = jwtService.extractId(token);
                 attributes.put("userId", userId);
+                attributes.put("groupId",groupId);
                 return true;// save to session
             }
         }
 
         response.setStatusCode(HttpStatus.UNAUTHORIZED); // optional, won't always reach client
+        System.out.println("token not auth");
         return false;
     }
 
