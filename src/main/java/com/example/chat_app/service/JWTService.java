@@ -1,6 +1,7 @@
 package com.example.chat_app.service;
 
 import com.example.chat_app.exceptions.UserNotFoundException;
+import com.example.chat_app.helper.Validate;
 import com.example.chat_app.model.Users;
 import com.example.chat_app.repository.UsersRepository;
 import io.jsonwebtoken.Claims;
@@ -32,13 +33,13 @@ public class JWTService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String generateToken(String email) {
+    public String generateToken(String username) {
         Map<String, Object> claims = new HashMap<>();
-        Users user = usersRepository.findByEmail(email);
+        Users user=usersRepository.findByUsername(username);
         claims.put("id", user.getId());
         claims.put("name", user.getName());
         claims.put("email", user.getEmail());
-
+        claims.put("username",user.getUsername());
         return Jwts.builder()
                 .claims()
                 .add(claims)
@@ -78,18 +79,17 @@ public class JWTService {
     }
 
     public boolean validateToken(String token) {
-        try{
+        try {
             if (isTokenExpired(token)) {
                 return false;
             }
             int userId = extractId(token);
-            if(usersRepository.existsById(userId)){
+            if (usersRepository.existsById(userId)) {
                 Users user = usersRepository.findById(userId).orElse(new Users());
                 return Objects.equals(user.getEmail(), extractEmail(token));
             }
             return false;
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             return false;
         }
     }

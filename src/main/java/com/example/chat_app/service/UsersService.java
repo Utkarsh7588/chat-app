@@ -1,16 +1,15 @@
 package com.example.chat_app.service;
 
-import com.example.chat_app.exceptions.UserAlreadyExistsException;
-import com.example.chat_app.exceptions.UserNotFoundException;
-import com.example.chat_app.exceptions.ValidationException;
+import com.example.chat_app.exceptions.*;
 import com.example.chat_app.model.Users;
 import com.example.chat_app.repository.UsersRepository;
 import jakarta.transaction.Transactional;
-import jakarta.validation.constraints.Email;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -46,7 +45,10 @@ public class UsersService {
         }
 
         if (repo.existsByEmail(user.getEmail())) {
-            throw new UserAlreadyExistsException("Email already registered");
+            throw new EmailAlreadyExistsException("Email already registered");
+        }
+        if(repo.existsByUsername(user.getUsername())){
+            throw new UsernameAlreadyExistsException("Username already taken");
         }
 
         user.setPassword(encoder.encode(user.getPassword()));
@@ -54,21 +56,41 @@ public class UsersService {
     }
 
     public Map<String, Object> verify(Users user) {
-        Authentication authentication = authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
+        Authentication authentication;
+        if(user.getEmail()!=null){
+            authentication = authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
+
+        }
+        else if(user.getUsername()!=null){
+            authentication = authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
+        }
+        else{
+            throw new EmptyCredentialsException("Credentials were empty");
+        }
         Map<String, Object> response = new HashMap<>();
         if (authentication.isAuthenticated()) {
-            Users userData=repo.findByEmail(user.getEmail());
+            Users userData;
+            if(user.getEmail()==null){
+                userData=repo.findByUsername(user.getUsername());
+                System.out.println(userData);
+            }
+            else{
+                userData=repo.findByEmail(user.getEmail());
+            }
+            if(userData==null){
+                throw  new UsernameNotFoundException("User not found");
+            }
             response.put("name",userData.getName());
             response.put("age",userData.getAge());
             response.put("email",userData.getEmail());
+            response.put("username",userData.getUsername());
             response.put("user_id",userData.getId());
-            String token=jwtService.generateToken(user.getEmail());
+            String token=jwtService.generateToken(userData.getUsername());
             response.put("token",token);
             return response;
         }
-        response.put("success",false);
-        response.put("message","authentication failed");
-        return response;
+
+        throw new BadCredentialsException("Incorrect login details");
     }
 
     public Users getUserInfo(int id) {

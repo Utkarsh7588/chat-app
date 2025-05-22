@@ -44,12 +44,10 @@ public class ChatController {
         dbMessage.setSenderId(userId);
         dbMessage.setGroupId(chatMessage.getGroupId());
         dbMessage.setCreated(Instant.now());
-        messageRepository.save(dbMessage);
-
-        // Prepare and broadcast message
-        chatMessage.setUsername(usersRepository.findNameById(userId));
+        if(chatMessage.getType()==MessageType.CHAT){
+            messageRepository.save(dbMessage);
+        }
         chatMessage.setUserId(userId);
-        chatMessage.setType(MessageType.CHAT);
         messagingTemplate.convertAndSend("/topic/" + chatMessage.getGroupId(), chatMessage);
     }
 

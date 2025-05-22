@@ -35,7 +35,7 @@ public class WebSocketEventListener {
             int groupId = Integer.parseInt(groupIdStr);
             ChatMessage chatMessage=new ChatMessage();
             chatMessage.setContent("User Joined");
-            chatMessage.setUsername(usersRepository.findNameById(userId));
+            chatMessage.setUsername(usersRepository.findUsernameById(userId));
             chatMessage.setUserId(userId);
             chatMessage.setType(MessageType.JOIN);
             messagingTemplate.convertAndSend("/topic/" + groupId, chatMessage);
@@ -53,7 +53,7 @@ public class WebSocketEventListener {
             String groupIdStr = (String) sessionAttributes.get("groupId");
             int groupId = Integer.parseInt(groupIdStr);
             ChatMessage chatMessage=new ChatMessage();
-            chatMessage.setUsername(usersRepository.findNameById(userId));
+            chatMessage.setUsername(usersRepository.findUsernameById(userId));
             chatMessage.setContent("User left");
             chatMessage.setUserId(userId);
             chatMessage.setType(MessageType.LEAVE);

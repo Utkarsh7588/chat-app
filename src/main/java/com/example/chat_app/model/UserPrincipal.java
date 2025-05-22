@@ -1,5 +1,6 @@
 package com.example.chat_app.model;
 
+import com.example.chat_app.helper.Validate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -7,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class UserPrincipal implements UserDetails {
     private Users user;
@@ -25,7 +27,10 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public String getUsername() {
-        return user.getEmail();
+        if(Validate.validateEmail(user.getEmail())){
+            return user.getEmail();
+        }
+        return user.getUsername();
     }
 
     @Override

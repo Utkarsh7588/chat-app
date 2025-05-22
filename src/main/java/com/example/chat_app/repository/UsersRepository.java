@@ -8,7 +8,11 @@ public interface UsersRepository extends JpaRepository<Users,Integer> {
     boolean existsByEmail(String email);
 
     Users findByEmail(String email);
-    @Query("SELECT u.name FROM Users u WHERE u.id = :id")
-    String findNameById(Integer id);
+    @Query("SELECT u.username FROM Users u WHERE u.id = :id")
+    String findUsernameById(Integer id);
+
+    Users findByUsername(String username);
+
+    boolean existsByUsername(String username);
 }
 
